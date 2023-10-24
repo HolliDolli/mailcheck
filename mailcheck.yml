@@ -1,0 +1,41 @@
+esphome:
+  name: mailcheck
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: ""
+
+ota:
+  password: ""
+
+wifi:
+  ssid: !secret GKssid
+  password: !secret GKpassword
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Luna Fallback Hotspot"
+    password: "LunaPass"
+
+captive_portal:
+
+time:
+  - platform: homeassistant
+
+sun:
+  latitude: 51.14°
+  longitude: 9.414°
+
+sensor:
+  - platform: ultrasonic
+    trigger_pin: D1
+    echo_pin: D2
+    name: "Ultrasonic Sensor"
+    update_interval: 10s
+    
