@@ -15,8 +15,8 @@ ota:
   password: ""
 
 wifi:
-  ssid: !secret GKssid
-  password: !secret GKpassword
+  ssid: !secret BGssid
+  password: !secret BGpassword
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
