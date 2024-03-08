@@ -1,0 +1,107 @@
+esp32:
+  board: lolin32_lite
+  
+esphome:
+  name: bgbriefkasten
+  on_boot:
+    then:
+      - script.execute: consider_deep_sleep
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+#
+# Achtung: Für Offlinekalender muss der API-Reboot auf 0s gesetzt werden, da die Tonne sonst alle 15 Minuten neu startet.
+#
+api:
+  password: ""
+ #  reboot_timeout: 0s  # only enable this when creating an offline Wastebin
+
+ota:
+  password: ""
+
+wifi:
+  ssid: !secret GKssid
+#  for captive-portal remove password
+  password: !secret GKpassword
+  ap:
+    ssid: !secret FBssid
+    password: !secret FBpassword
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+captive_portal:
+#  keep_user_credentials: true  # option nicht aktiv.
+
+# i2c Bus auf D1 und D2 konfigurieren
+  
+time:
+  - platform: homeassistant
+
+sun:
+  latitude: 51.14°
+  longitude: 9.414°
+
+output:
+  - platform: gpio
+    pin: GPIO27
+    id: 'Sonar'
+  - platform: gpio
+    pin: GPIO22
+    id: 'LEDint'
+
+binary_sensor:
+  - platform: homeassistant
+    id: prevent_deep_sleep
+    name: Prevent Deep Sleep
+    entity_id: input_boolean.bg_briefkasten_prevent_deepsleep
+    on_state: 
+      - script.execute: consider_deep_sleep
+
+
+
+script:
+  - id: consider_deep_sleep
+    mode: restart
+    then:
+      - if:
+          condition:
+            binary_sensor.is_on: prevent_deep_sleep
+          then:
+            - logger.log: 'Skipping sleep, per prevent_deep_sleep'
+            - deep_sleep.prevent: deep_sleep_1
+          else:
+            - logger.log: 'Allowing sleep, per prevent_deep_sleep'
+            - deep_sleep.allow: deep_sleep_1
+  
+sensor:
+  - platform: ultrasonic
+    trigger_pin: GPIO14 
+    echo_pin: GPIO12
+    name: "Ultrasonic Sensor"
+    update_interval: 1s
+#    pulse_time: 15us
+#    timeout: 5m 
+
+switch:
+  - platform: output
+    name: "Sonar"
+    output: "Sonar"
+    restore_mode: ALWAYS_ON
+  - platform: output
+    name: "LEDint"
+    output: "LEDint"
+    inverted: true
+    restore_mode: ALWAYS_ON
+
+interval:
+  - interval: 10s
+    then:
+      - script.execute: consider_deep_sleep
+
+deep_sleep:
+  run_duration: 2min
+  sleep_duration: 16h
+  id: deep_sleep_1
+  
+  
