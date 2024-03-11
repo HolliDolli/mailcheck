@@ -4,8 +4,18 @@ esp32:
 esphome:
   name: bgbriefkasten
   on_boot:
+    priority: -100
     then:
+      - logger.log: 'Lolin boot triggered'
+      - switch.turn_on: LEDint
       - script.execute: consider_deep_sleep
+  on_shutdown:
+    priority: -100
+    then:
+      - switch.turn_off: LEDint
+      - logger.log: "Lolin shutdown triggered"
+
+
 
 # Enable logging
 logger:
@@ -22,9 +32,9 @@ ota:
   password: ""
 
 wifi:
-  ssid: !secret GKssid
+  ssid: !secret BGssid
 #  for captive-portal remove password
-  password: !secret GKpassword
+  password: !secret BGpassword
   ap:
     ssid: !secret FBssid
     password: !secret FBpassword
@@ -48,17 +58,20 @@ output:
     id: 'Sonar'
   - platform: gpio
     pin: GPIO22
-    id: 'LEDint'
+    id: 'GPLEDint'
+
+text_sensor:
+  - platform: version
+    name: "ESPHome Version"  
 
 binary_sensor:
   - platform: homeassistant
     id: prevent_deep_sleep
     name: Prevent Deep Sleep
+    disabled_by_default: false
     entity_id: input_boolean.bg_briefkasten_prevent_deepsleep
     on_state: 
       - script.execute: consider_deep_sleep
-
-
 
 script:
   - id: consider_deep_sleep
@@ -66,14 +79,20 @@ script:
     then:
       - if:
           condition:
-            binary_sensor.is_on: prevent_deep_sleep
+            api.connected:
           then:
-            - logger.log: 'Skipping sleep, per prevent_deep_sleep'
+            - if:
+                condition:
+                  binary_sensor.is_off: prevent_deep_sleep
+                then:
+                  - logger.log: 'Allowing sleep, per prevent_deep_sleep'
+                  - deep_sleep.allow: deep_sleep_1
+                else:
+                  - logger.log: 'Skipping sleep, per prevent_deep_sleep'
+                  - deep_sleep.prevent: deep_sleep_1
+          else:  
+            - logger.log: 'Skipping sleep, per no api connection'
             - deep_sleep.prevent: deep_sleep_1
-          else:
-            - logger.log: 'Allowing sleep, per prevent_deep_sleep'
-            - deep_sleep.allow: deep_sleep_1
-  
 sensor:
   - platform: ultrasonic
     trigger_pin: GPIO14 
@@ -89,8 +108,9 @@ switch:
     output: "Sonar"
     restore_mode: ALWAYS_ON
   - platform: output
+    id: "LEDint"
     name: "LEDint"
-    output: "LEDint"
+    output: "GPLEDint"
     inverted: true
     restore_mode: ALWAYS_ON
 
@@ -100,8 +120,8 @@ interval:
       - script.execute: consider_deep_sleep
 
 deep_sleep:
-  run_duration: 2min
-  sleep_duration: 16h
+  run_duration: 3min
+  sleep_duration: 8h
   id: deep_sleep_1
   
   
