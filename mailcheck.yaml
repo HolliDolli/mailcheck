@@ -1,5 +1,7 @@
 esp32:
   board: lolin32_lite
+  framework:
+    type: esp-idf
   
 esphome:
   name: bgbriefkasten
@@ -29,7 +31,7 @@ api:
  #  reboot_timeout: 0s  # only enable this when creating an offline Wastebin
 
 ota:
-  password: ""
+  - platform: esphome
 
 wifi:
   ssid: !secret BGssid
