@@ -125,5 +125,9 @@ deep_sleep:
   run_duration: 3min
   sleep_duration: 8h
   id: deep_sleep_1
-  
+  wakeup_pin: 
+    number: GPIO04
+    mode:
+      input: true
+      pulldown: true
   
