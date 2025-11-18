@@ -130,4 +130,5 @@ deep_sleep:
     mode:
       input: true
       pulldown: true
+  wakeup_pin_mode: KEEP_AWAKE
   
