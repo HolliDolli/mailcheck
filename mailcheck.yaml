@@ -37,6 +37,13 @@ wifi:
   ssid: !secret BGssid
 #  for captive-portal remove password
   password: !secret BGpassword
+#  statische IP-Adresse wird benötigt, solange nicht klar ist welche Hardware verwendet wird.
+#  Wenn die finale Hardware (MAC-Adresse) steht, dann kann die statische IP raus,
+#  und es wird die IP-Adresse über eine feste Lease im DHCP eingetragen.  
+  manual_ip:
+    static_ip: 192.168.178.200
+    gateway: 192.168.178.1
+    subnet: 255.255.255.0
   ap:
     ssid: !secret FBssid
     password: !secret FBpassword
