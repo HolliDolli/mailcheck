@@ -4,18 +4,18 @@ esp32:
     type: esp-idf
   
 esphome:
-  name: mailcheck
+  name: sonic01
   on_boot:
     priority: -100
     then:
-      - logger.log: 'MailCk boot triggered'
+      - logger.log: 'Sonic01 boot triggered'
       - switch.turn_on: LEDint
       - script.execute: consider_deep_sleep
   on_shutdown:
     priority: -100
     then:
       - switch.turn_off: LEDint
-      - logger.log: "MailCk shutdown triggered"
+      - logger.log: "Sonic01 shutdown triggered"
 
 
 
@@ -59,7 +59,7 @@ sun:
 
 output:
   - platform: gpio
-    pin: GPIO33
+    pin: GPIO27
     id: 'Sonar'
   - platform: gpio
     pin: GPIO22
@@ -83,8 +83,8 @@ binary_sensor:
 
 sensor:
   - platform: ultrasonic
-    trigger_pin: GPIO26 
-    echo_pin: GPIO14
+    trigger_pin: GPIO14 
+    echo_pin: GPIO12
     name: "Ultrasonic Sensor"
     update_interval: 1s
     timeout: 5m 
